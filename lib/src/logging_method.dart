@@ -1,0 +1,1 @@
+enum LoggingMethod { console, file }
