@@ -1,1 +1,1 @@
-enum LoggingMethod { console, file }
+enum LoggingMethod { console, file, sqlserver, mysql }
