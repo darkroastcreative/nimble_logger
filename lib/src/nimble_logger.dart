@@ -11,6 +11,7 @@ class NimbleLogger {
   String _fileLoggingPath = '';
   File? _logFile;
 
+  /// Constructs a new instance of NimbleLogger.
   NimbleLogger(List<LoggingMethod> enabledLoggingMethods,
       {String fileLoggingPath = ''}) {
     if (enabledLoggingMethods.isNotEmpty) {
@@ -40,15 +41,12 @@ class NimbleLogger {
 
     if (_isFileLoggingEnabled) {
       if (_logFile != null) {
-        print('Logging to file.');
         try {
           IOSink? _ioSink = _logFile?.openWrite(mode: FileMode.append);
 
           _ioSink?.writeln(preparedMessage);
 
           _ioSink?.close();
-
-          print('Logged to file.');
         } catch (exception) {
           if (_isConsoleLoggingEnabled) {
             print(
@@ -59,8 +57,14 @@ class NimbleLogger {
     }
   }
 
-  void logError(String message) {
-    // TODO: Implement!
+  void logError(String message, {Exception? exception}) {
+    String preparedMessage = 'ERROR: $message';
+
+    if (exception != null) {
+      preparedMessage = '$preparedMessage\n${exception.toString()}';
+    }
+
+    logMessage(preparedMessage);
   }
 
   void setConsoleLoggingState(bool enabled) {
