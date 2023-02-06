@@ -15,4 +15,14 @@ void main() {
   // Log a couple test messages to console and file.
   logger.logMessage('Hello, world!');
   logger.logError('On no!');
+
+  // Log a test error by creating an exception and logging an error message
+  // with an exception.
+  try {
+    throw Exception('Something went wrong.');
+  } on Exception catch (exception) {
+    logger.logError(
+        'Intentionally threw an exception to test logging errors with exceptions.',
+        exception: exception);
+  }
 }
