@@ -32,13 +32,19 @@ class NimbleLogger {
     }
   }
 
+  /// Logs a given message through the enabled logging methods.
   void logMessage(String message) {
+    // Build base log message.
     String preparedMessage = '${DateTime.now()}\t$message';
 
+    // If console-based logging is enabled, proceed to log the provided message
+    // to the console.
     if (_isConsoleLoggingEnabled) {
       print(preparedMessage);
     }
 
+    // If file-based logging is enabled, proceed to log the provided message
+    // to file.
     if (_isFileLoggingEnabled) {
       if (_logFile != null) {
         try {
@@ -57,20 +63,29 @@ class NimbleLogger {
     }
   }
 
+  /// Logs a given error message through the enabled logging methods along with
+  /// an Exception if provided.
   void logError(String message, {Exception? exception}) {
+    // Build base log message.
     String preparedMessage = 'ERROR: $message';
 
+    // If an Exception is provided, add it to the log message.
     if (exception != null) {
       preparedMessage = '$preparedMessage\n${exception.toString()}';
     }
 
+    // Log out the constructed log message.
     logMessage(preparedMessage);
   }
 
+  /// Sets whether console-based logging is enabled.
   void setConsoleLoggingState(bool enabled) {
     _isConsoleLoggingEnabled = enabled;
   }
 
+  /// Sets whether file-based logging is enabled. If setting to true (thus
+  /// enabling file-based logging), nimble_logger will confirm that file-based
+  /// logging is possible with the given log file path.
   void setFileLoggingState(bool enabled) {
     if (enabled) {
       _isFileLoggingEnabled = _testFileLoggingCapability();
@@ -79,9 +94,17 @@ class NimbleLogger {
     }
   }
 
+  /// Sets the path to use for file-based logging. If file-based logging is
+  /// enabled at the time that this is called, it will re-verify that
+  /// file-based logging is possible with the given path.
   void setFileLoggingPath(String path) {
     _fileLoggingPath = path;
-    _isFileLoggingEnabled = _testFileLoggingCapability();
+
+    // If file-based logging is enabled, verify that file-based logging is
+    // possible at the new path.
+    if (_isFileLoggingEnabled) {
+      _isFileLoggingEnabled = _testFileLoggingCapability();
+    }
   }
 
   /// Tests whether nimble_logger is able to log to file at the specified file
