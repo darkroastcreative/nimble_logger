@@ -26,27 +26,7 @@ class NimbleLogger {
           fileLoggingPath.isNotEmpty) {
         _fileLoggingPath = fileLoggingPath;
 
-        // Try to open a file at the provided file logging path for writing and
-        // set the state of file-based logging based on the outcome (enabled if
-        // file could be opened successfully, disabled if not).
-        try {
-          _logFile = File(_fileLoggingPath);
-
-          if (_logFile != null) {
-            IOSink? _ioSink = _logFile?.openWrite(mode: FileMode.append);
-
-            _isFileLoggingEnabled = _ioSink != null;
-
-            _ioSink?.close();
-          }
-        } catch (exception) {
-          if (_isConsoleLoggingEnabled) {
-            print(
-                '${DateTime.now()}\tERROR: Could not open IOSink to log to file.');
-          }
-        }
-
-        _isFileLoggingEnabled = true;
+        _isFileLoggingEnabled = _testFileLoggingCapability();
       }
     }
   }
@@ -88,14 +68,45 @@ class NimbleLogger {
   }
 
   void setFileLoggingState(bool enabled) {
-    _isFileLoggingEnabled = enabled;
+    if (enabled) {
+      _isFileLoggingEnabled = _testFileLoggingCapability();
+    } else {
+      _isFileLoggingEnabled = false;
+    }
   }
 
   void setFileLoggingPath(String path) {
     _fileLoggingPath = path;
+    _isFileLoggingEnabled = _testFileLoggingCapability();
   }
 
-  bool testFileLoggingCapability() {
-    return false;
+  /// Tests whether nimble_logger is able to log to file at the specified file
+  /// path. Returns true if the test was successful and false if the test failed.
+  bool _testFileLoggingCapability() {
+    bool fileLoggingTestSucceeded = false;
+
+    // Try to open a file at the provided file logging path for writing and
+    // set the state of file-based logging based on the outcome (enabled if
+    // file could be opened successfully, disabled if not).
+    if (_fileLoggingPath.isNotEmpty) {
+      try {
+        _logFile = File(_fileLoggingPath);
+
+        if (_logFile != null) {
+          IOSink? _ioSink = _logFile?.openWrite(mode: FileMode.append);
+
+          fileLoggingTestSucceeded = _ioSink != null;
+
+          _ioSink?.close();
+        }
+      } catch (exception) {
+        if (_isConsoleLoggingEnabled) {
+          print(
+              '${DateTime.now()}\tERROR: Could not open IOSink to log to file.');
+        }
+      }
+    }
+
+    return fileLoggingTestSucceeded;
   }
 }
