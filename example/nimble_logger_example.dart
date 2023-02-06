@@ -1,5 +1,4 @@
 import 'package:nimble_logger/nimble_logger.dart';
-import 'package:nimble_logger/src/utility_functions.dart';
 
 void main() {
   // Declare and initialize an instance of NimbleLogger with console logging
