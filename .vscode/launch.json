@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "nimble_logger",
-            "request": "launch",
+            "name": "Dart",
             "type": "dart",
-            "program": "${workspaceFolder}//example//nimble_logger_example.dart"
+            "request": "launch",
+            "program": "${workspaceFolder}/example/nimble_logger_example.dart"
         }
     ]
 }

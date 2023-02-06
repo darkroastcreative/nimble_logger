@@ -1,4 +1,6 @@
-import 'package:nimble_logger/nimble_logger.dart';
+import 'dart:io';
+
+import 'package:nimble_logger/src/logging_method.dart';
 
 class NimbleLogger {
   // Declare and initialize booleans tracking which logging methods are enabled.
@@ -7,18 +9,44 @@ class NimbleLogger {
 
   // Declare and initialize file logging path variable for file-based logging.
   String _fileLoggingPath = '';
+  File? _logFile;
 
   NimbleLogger(List<LoggingMethod> enabledLoggingMethods,
       {String fileLoggingPath = ''}) {
     if (enabledLoggingMethods.isNotEmpty) {
-      if (enabledLoggingMethods.contains(LoggingMethod.console)) {
-        _isConsoleLoggingEnabled = true;
-      }
+      // Set state of console-based logging based on presence of "console" in
+      // enabled logging methods.
+      _isConsoleLoggingEnabled =
+          enabledLoggingMethods.contains(LoggingMethod.console);
 
+      // Set state of file-based logging based on presence of "file" in enabled
+      // logging methods and whether a file at the provided path can be opened
+      // for writing.
       if (enabledLoggingMethods.contains(LoggingMethod.file) &&
           fileLoggingPath.isNotEmpty) {
-        _isFileLoggingEnabled = true;
         _fileLoggingPath = fileLoggingPath;
+
+        // Try to open a file at the provided file logging path for writing and
+        // set the state of file-based logging based on the outcome (enabled if
+        // file could be opened successfully, disabled if not).
+        try {
+          _logFile = File(_fileLoggingPath);
+
+          if (_logFile != null) {
+            IOSink? _ioSink = _logFile?.openWrite(mode: FileMode.append);
+
+            _isFileLoggingEnabled = _ioSink != null;
+
+            _ioSink?.close();
+          }
+        } catch (exception) {
+          if (_isConsoleLoggingEnabled) {
+            print(
+                '${DateTime.now()}\tERROR: Could not open IOSink to log to file.');
+          }
+        }
+
+        _isFileLoggingEnabled = true;
       }
     }
   }
@@ -30,8 +58,24 @@ class NimbleLogger {
       print(preparedMessage);
     }
 
-    if (_isFileLoggingEnabled && _isFileLoggingFunctional) {
-      // TODO: Implement!
+    if (_isFileLoggingEnabled) {
+      if (_logFile != null) {
+        print('Logging to file.');
+        try {
+          IOSink? _ioSink = _logFile?.openWrite(mode: FileMode.append);
+
+          _ioSink?.writeln(preparedMessage);
+
+          _ioSink?.close();
+
+          print('Logged to file.');
+        } catch (exception) {
+          if (_isConsoleLoggingEnabled) {
+            print(
+                '${DateTime.now()}\tERROR: Could not open IOSink to log to file.');
+          }
+        }
+      }
     }
   }
 
@@ -49,5 +93,9 @@ class NimbleLogger {
 
   void setFileLoggingPath(String path) {
     _fileLoggingPath = path;
+  }
+
+  bool testFileLoggingCapability() {
+    return false;
   }
 }
